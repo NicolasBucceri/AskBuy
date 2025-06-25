@@ -1,0 +1,30 @@
+[
+    {
+      "titulo": "Logitech G435",
+      "descripcion": "Auriculares inalámbricos con tecnología de sonido envolvente y ultra ligeros.",
+      "imagen": "/Img/imgBanner.png",
+      "botones": [
+        { "texto": "Ver auriculares", "link": "/auriculares" },
+        { "texto": "Todos los productos", "link": "/productos" }
+      ]
+    },
+    {
+      "titulo": "Razer DeathAdder",
+      "descripcion": "Mouse ergonómico con sensor óptico de alta precisión.",
+      "imagen": "/Img/imgBanner2.png",
+      "botones": [
+        { "texto": "Ver mouse", "link": "/mouse" },
+        { "texto": "Todos los productos", "link": "/productos" }
+      ]
+    },
+    {
+      "titulo": "Monitor Alienware",
+      "descripcion": "Pantalla curva de 34'' con tecnología G-Sync para una experiencia inmersiva.",
+      "imagen": "/Img/imgBanner3.png",
+      "botones": [
+        { "texto": "Ver monitores", "link": "/monitores" },
+        { "texto": "Todos los productos", "link": "/productos" }
+      ]
+    }
+  ]
+  
