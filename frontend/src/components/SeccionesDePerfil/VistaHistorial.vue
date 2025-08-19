@@ -22,34 +22,39 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { getAuth } from 'firebase/auth'
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore'
 
-const historial = ref([
-  {
-    id: '1',
-    nombre: 'Mouse Gamer RGB',
-    imagen: 'https://via.placeholder.com/60',
-    fecha: '2025-06-01T14:20:00',
-    precio: 25000,
-    estado: 'Pagado'
-  },
-  {
-    id: '2',
-    nombre: 'Auriculares Pro',
-    imagen: 'https://via.placeholder.com/60',
-    fecha: '2025-06-02T11:10:00',
-    precio: 45000,
-    estado: 'Pendiente'
-  },
-  {
-    id: '3',
-    nombre: 'Teclado Mecánico',
-    imagen: 'https://via.placeholder.com/60',
-    fecha: '2025-06-03T17:45:00',
-    precio: 60000,
-    estado: 'Cancelado'
+const historial = ref([])
+const auth = getAuth()
+const db = getFirestore()
+
+onMounted(async () => {
+  const user = auth.currentUser
+  if (!user) return console.warn('⚠️ Usuario no autenticado')
+
+  try {
+    const q = query(
+      collection(db, 'compras'),
+      where('usuarioId', '==', user.uid)
+    )
+    const querySnapshot = await getDocs(q)
+    historial.value = querySnapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        nombre: data.producto?.nombre || 'Producto',
+        imagen: data.producto?.imagen || '',
+        fecha: data.fecha?.toDate() || new Date(),
+        precio: data.producto?.total || 0,
+        estado: data.estado || 'pendiente'
+      }
+    })
+  } catch (error) {
+    console.error('❌ Error al obtener historial:', error)
   }
-])
+})
 
 const formatPrecio = (valor) => {
   return new Intl.NumberFormat('es-AR', {
@@ -59,8 +64,7 @@ const formatPrecio = (valor) => {
   }).format(valor)
 }
 
-const formatFecha = (fechaISO) => {
-  const fecha = new Date(fechaISO)
+const formatFecha = (fecha) => {
   return fecha.toLocaleDateString('es-AR', {
     day: '2-digit',
     month: 'short',
@@ -68,6 +72,7 @@ const formatFecha = (fechaISO) => {
   })
 }
 </script>
+
 
 <style scoped>
 .vista-historial {

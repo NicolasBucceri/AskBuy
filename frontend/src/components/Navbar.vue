@@ -45,7 +45,7 @@
                                 </ul>
                             </li>
                             <li class="nav-item mx-2">
-                                <router-link to="/servicios" class="nav-link">Servicios</router-link>
+                                <router-link to="/servicios-usuario" class="nav-link">Servicios</router-link>
                             </li>
                             <li class="nav-item mx-2">
                                 <router-link to="/panel" class="nav-link">Panel</router-link>
@@ -72,7 +72,7 @@
                                 </ul>
                             </li>
                             <li class="nav-item mx-2">
-                                <router-link to="/servicios" class="nav-link">Servicios</router-link>
+                                <router-link to="/servicios-usuario" class="nav-link">Servicios</router-link>
                             </li>
                         </template>
                     </ul>

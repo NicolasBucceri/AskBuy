@@ -2,10 +2,9 @@
   <div>
     <!-- Sidebar Izquierda -->
     <div class="sidebarIzquierda">
-      <a v-for="seccion in secciones" :key="seccion.id"
-         href="#" @click.prevent="$emit('update:activeSection', seccion.id)"
-         :class="{ active: activeSection === seccion.id }"
-         :title="seccion.tooltip">
+      <a v-for="seccion in secciones" :key="seccion.id" href="#"
+        @click.prevent="$emit('update:activeSection', seccion.id)" :class="{ active: activeSection === seccion.id }"
+        :title="seccion.tooltip">
         <i :class="seccion.icono"></i>
       </a>
 
@@ -19,8 +18,7 @@
     <!-- Sidebar Derecha -->
     <div class="sidebarDerecha">
       <a href="#" data-bs-toggle="tooltip" data-bs-placement="bottom"
-         :title="product.ocultar ? 'Producto oculto' : 'Producto visible'"
-         @click="$emit('toggleOcultar')">
+        :title="product.ocultar ? 'Producto oculto' : 'Producto visible'" @click="$emit('toggleOcultar')">
         <i :class="product.ocultar ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
       </a>
       <a href="#" @click.prevent="$emit('abrirModalVistaPrevia')" title="Ampliar Vista">
@@ -90,13 +88,13 @@ const secciones = [
 
 .sidebarIzquierda a.active {
   background: var(--colorTerciario);
-   color: #343a40;
+  color: #343a40;
   border-radius: 8px;
 }
 
 .sidebarDerecha {
   width: 80px;
- background: #3b3b3b;
+  background: #3b3b3b;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -9,6 +9,7 @@ import AdminView from "../views/AdminView.vue";
 import AddProduct from "../views/AddProduct.vue";
 import Contacto from "../views/Contacto.vue";
 import QuienesSomos from "../views/QuienesSomos.vue";
+import ServiciosUsuario from "../views/ServiciosUsuario.vue";
 import Productos from "../views/Productos.vue";
 import LoginRegistro from "../views/LoginRegistro.vue";
 import Panel from "../views/Panel.vue";
@@ -22,6 +23,11 @@ import NotFound from "../views/NotFound.vue";
 import AdminAnaliticas from "../views/AdminAnaliticas.vue";
 import AdminCarruseles from "../views/AdminCarruseles.vue";
 import AdminCargaMasiva from "../views/AdminCargaMasiva.vue";
+import AdminServicios from "../views/AdminServicios.vue";
+import AdminPedidos from "../views/AdminPedidos.vue";
+import Checkout from "../views/Checkout.vue";
+import Success from "../views/Success.vue";
+
 
 
 const routes = [
@@ -35,6 +41,8 @@ const routes = [
 
   { path: "/quienes-somos", name: "QuienesSomos", component: QuienesSomos },
 
+  { path: "/servicios-usuario", name: "ServiciosUsuario", component: ServiciosUsuario },
+
   { path: "/productos", name: "Productos", component: Productos },
 
   { path: "/login-registro", name: "LoginRegistro", component: LoginRegistro },
@@ -44,6 +52,10 @@ const routes = [
   { path: "/producto/:id", name: "DetalleProducto", component: DetalleProducto },
 
   { path: "/perfil", name: "Perfil", component: Perfil },
+
+  { path: "/success", name: "Success", component: Success },
+
+  { path: "/checkout", name: "Checkout", component: Checkout },
 
   { path: "/adminproductos", name: "AdminProductos", component: AdminProductos, meta: { requiereRol: ["admin"] } },
 
@@ -56,6 +68,10 @@ const routes = [
   { path: "/admincarruseles", name: "AdminCarruseles", component: AdminCarruseles, meta: { requiereRol: ["admin", "moderador"] } },
 
   { path: "/admincargamasiva", name: "AdminCargaMasiva", component: AdminCargaMasiva, meta: { requiereRol: ["admin", "moderador"] } },
+
+  { path: "/adminservicios", name: "AdminServicios", component: AdminServicios, meta: { requiereRol: ["admin", "moderador"] } },
+
+  { path: "/adminpedidos", name: "AdminPedidos", component: AdminPedidos, meta: { requiereRol: ["admin", "moderador"] } },
 
   { path: "/favoritos", name: "VistaFavoritos", component: VistaFavoritos },
 

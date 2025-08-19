@@ -562,6 +562,8 @@ def eliminar_carrusel(carrusel_id):
     carrusel_ref.delete()
     return jsonify({"message": "Carrusel eliminado"}), 200
 
+from mercado_pago import mercado_pago
+app.register_blueprint(mercado_pago)
 
 
 # 🚀 Iniciar el servidor

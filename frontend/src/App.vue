@@ -25,6 +25,8 @@ const noMostrarFooter = computed(() =>
   && route.name !== 'AdminCargaMasiva'
   && route.name !== 'AdminAnaliticas'
   && route.name !== 'ListaUsuarios'
+  && route.name !== 'AdminServicios'
+  && route.name !== 'AdminPedidos'
 );
 
 </script>

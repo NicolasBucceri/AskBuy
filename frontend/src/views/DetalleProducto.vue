@@ -207,13 +207,14 @@
 import { ref, computed, onMounted, watch, nextTick, watchEffect } from 'vue'
 import { auth, db } from '../firebase'
 import { doc, getDoc, setDoc, updateDoc, increment } from 'firebase/firestore'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter  } from 'vue-router'
 import axios from 'axios'
 import Notificacion from '../components/ToastNotificacion.vue'
 
 // 📥 Props y rutas
 const props = defineProps({ producto: Object, modoPreview: Boolean })
 const route = useRoute()
+const router = useRouter()
 
 // 🧠 Estado reactivo
 const producto = ref(null)
@@ -278,10 +279,25 @@ async function consultarPorWhatsApp() {
 // 🛒 Registrar compra
 async function registrarCompra() {
   if (!producto.value?.id) return
+
   const docRef = doc(db, 'productos', producto.value.id)
   await updateDoc(docRef, { compras: increment(1) })
 
-  refNoti.value?.mostrar('Gracias por tu compra', 'Tu orden fue registrada', 'success')
+  const productoParaComprar = {
+    id: modeloSeleccionado.value?.id || producto.value.id,
+    nombre: modeloSeleccionado.value?.nombre || producto.value.nombre,
+    imagen:
+      modeloSeleccionado.value?.imagenMiniatura ||
+      modeloSeleccionado.value?.imagenCarrusel?.[0] ||
+      producto.value.imagenCarrusel?.[0],
+    precio: producto.value.precioConDescuento || producto.value.precio,
+    cantidad: cantidadFinal.value || 1,
+    color: modeloSeleccionado.value?.color || producto.value.colorPrincipal || 'Sin color'
+  }
+
+  localStorage.setItem('productoParaCheckout', JSON.stringify(productoParaComprar))
+
+  router.push('/checkout')
 }
 
 
@@ -574,6 +590,16 @@ watchEffect(() => {
   }
 })
 
+const productoParaCheckout = {
+  id: producto.id,
+  nombre: producto.nombre,
+  color: producto.colorPrincipal,
+  cantidad: cantidadSeleccionada.value || 1,
+  imagen: producto.imagen,
+  precio: producto.precioConDescuento || producto.precio || 0
+}
+
+localStorage.setItem('productoParaCheckout', JSON.stringify(productoParaCheckout))
 
 
 </script>

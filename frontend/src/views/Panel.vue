@@ -43,7 +43,7 @@ const cards = computed(() => {
       titulo: "Ver Productos", textoSecundario: "Gestioná", ruta: "/adminproductos", icono: "fa-solid fa-boxes-stacked", gradient: "linear-gradient(135deg, #f7971e, #ffd200)"
     },
     {
-      titulo: "Pedidos", textoSecundario: "Revisá", ruta: "/admin-pedidos", icono: "fa-solid fa-truck", gradient: "linear-gradient(135deg, #1e3c72, #2a5298)"
+      titulo: "Pedidos", textoSecundario: "Revisá", ruta: "/adminpedidos", icono: "fa-solid fa-truck", gradient: "linear-gradient(135deg, #1e3c72, #2a5298)"
     },
     {
       titulo: "Descuentos", textoSecundario: "Promocioná", ruta: "/admindescuentos", icono: "fa-solid fa-tags", gradient: "linear-gradient(135deg, #6a11cb, #2575fc)"
@@ -57,6 +57,10 @@ const cards = computed(() => {
     {
       titulo: "Analíticas", textoSecundario: "Analizá", ruta: "/adminanaliticas", icono: "fa-solid fa-chart-line", gradient: "linear-gradient(135deg, #ff5f6d, #ffc371)"
     },
+    {
+      titulo: "Servicios", textoSecundario: "Gestioná", ruta: "/adminservicios", icono: "fa-solid fa-screwdriver-wrench", gradient: "linear-gradient(135deg, #232526, #414345)"
+    }
+
 
   ]
 
@@ -91,7 +95,7 @@ const cards = computed(() => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
-    animation: fadeIn 0.6s ease;
+  animation: fadeIn 0.6s ease;
 }
 
 @keyframes fadeIn {
@@ -125,7 +129,7 @@ const cards = computed(() => {
 
 .icon-container {
   font-size: 2.8rem;
-    transition: transform 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .admin-option:hover .icon-container {

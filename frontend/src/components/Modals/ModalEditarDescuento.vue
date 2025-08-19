@@ -1,104 +1,220 @@
 <template>
-    <div class="modal fade" ref="modalRef" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5">Editar Descuento</h1>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body d-grid gap-3" style="grid-template-columns: 1fr 1fr;">
-                    <div class="formularioCampo" style="grid-column: span 2;">
-                        <label class="form-label">Precio:</label>
-                        <input type="text" class="form-control" :value="formattedPrecio"
-                            @input="formatInput($event, 'precio')" />
-                    </div>
-
-                    <div class="formularioCampo">
-                        <label class="form-label">Aplicar Descuento:</label>
-                        <input type="checkbox" v-model="producto.descuento" class="form-check-input ms-1 mt-2" />
-                    </div>
-
-                    <div class="formularioCampo">
-                        <label class="form-label">Tipo de descuento:</label>
-                        <select v-model="producto.tipoDescuento" class="form-select" :disabled="!producto.descuento">
-                            <option disabled value="">Seleccioná un tipo...</option>
-                            <option value="porcentaje">Porcentaje (%)</option>
-                            <option value="monto">Monto Fijo ($)</option>
-                        </select>
-
-                    </div>
-
-                    <div class="formularioCampo" v-if="producto.tipoDescuento === 'porcentaje'">
-                        <label class="form-label">Porcentaje:</label>
-                        <input type="number" class="form-control" v-model.number="producto.porcentajeDescuento" min="0"
-                            max="100" />
-                    </div>
-
-                    <div class="formularioCampo" v-else>
-                        <label class="form-label">Monto de Descuento:</label>
-                        <input type="text" class="form-control" :value="formattedMonto"
-                            @input="formatInput($event, 'montoDescuento')" />
-                    </div>
-
-                    <div class="formularioCampo">
-                        <label class="form-label">Precio con descuento:</label>
-                        <input type="text" class="form-control" :value="precioFinal" readonly />
-                    </div>
-
-                    <div class="formularioCampo">
-                        <label class="form-label">Vencimiento:</label>
-                        <input type="datetime-local" v-model="producto.fechaYHoraVencimiento" class="form-control"
-                            :min="minFechaActual" />
-
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" @click="guardar">Guardar</button>
-                </div>
-            </div>
+  <div class="modal fade" ref="modalRef" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header">
+          <div class="d-flex align-items-center gap-3">
+            <img :src="producto.imagen || producto.imagenCarrusel?.[0]" alt="Imagen del producto"
+              style="width: 60px; height: 60px; object-fit: contain; border-radius: 0.5rem; border: 1px solid #444;" />
+            <h1 class="modal-title fs-5">Editar Descuento - {{ producto.nombre }}</h1>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
+
+        <div class="modal-body">
+          <!-- Tabs -->
+          <ul class="nav nav-tabs mb-3" id="descuentoTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="producto-tab" data-bs-toggle="tab"
+                data-bs-target="#producto" type="button" role="tab">Producto</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="modelos-tab" data-bs-toggle="tab" data-bs-target="#modelos"
+                type="button" role="tab">Modelos</button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <!-- Producto Tab -->
+            <div class="tab-pane fade show active" id="producto" role="tabpanel">
+              <div class="row g-3">
+                <!-- ✅ Checkbox para aplicar descuento al producto base -->
+                <div class="col-12">
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" v-model="producto.descuento" id="check-base">
+                    <label class="form-check-label" for="check-base">
+                      Aplicar descuento
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Precio:</label>
+                  <input type="text" class="form-control" :value="formattedPrecio"
+                    @input="formatInput($event, 'precio')" />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Precio con descuento:</label>
+                  <input type="text" class="form-control" :value="precioFinal" readonly />
+                </div>
+
+                <!-- Solo mostrar los campos si se activa el checkbox -->
+                <template v-if="producto.descuento">
+                  <div class="col-md-6">
+                    <label class="form-label">Tipo de descuento:</label>
+                    <select v-model="producto.tipoDescuento" class="form-select">
+                      <option disabled value="">Seleccioná un tipo...</option>
+                      <option value="porcentaje">Porcentaje (%)</option>
+                      <option value="monto">Monto Fijo ($)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6" v-if="producto.tipoDescuento === 'porcentaje'">
+                    <label class="form-label">Porcentaje:</label>
+                    <input type="number" class="form-control"
+                      v-model.number="producto.porcentajeDescuento" min="0" max="100" />
+                  </div>
+
+                  <div class="col-md-6" v-else>
+                    <label class="form-label">Monto de Descuento:</label>
+                    <input type="text" class="form-control" :value="formattedMonto"
+                      @input="formatInput($event, 'montoDescuento')" />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Vencimiento:</label>
+                    <input type="datetime-local" v-model="producto.fechaYHoraVencimiento"
+                      class="form-control" :min="minFechaActual" />
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Modelos Tab -->
+            <div class="tab-pane fade" id="modelos" role="tabpanel">
+              <div v-if="producto.modelos?.length">
+                <div v-for="(modelo, index) in producto.modelos" :key="index" class="border-top pt-3 mt-3">
+                  <div class="d-flex align-items-center gap-3 mb-3">
+                    <img :src="modelo.imagen || modelo.imagenCarrusel?.[0] || 'https://via.placeholder.com/60x60?text=Sin+imagen'"
+                      alt="Imagen modelo"
+                      style="width: 60px; height: 60px; object-fit: contain; border-radius: 0.5rem; border: 1px solid #555;" />
+                    <h6 class="text-info m-0">Modelo: {{ modelo.nombre || 'Sin nombre' }}</h6>
+                  </div>
+
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Precio:</label>
+                      <input type="text" class="form-control" :value="formatNumber(modelo.precio)"
+                        @input="formatModeloInput($event, modelo, 'precio')" />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Precio con descuento:</label>
+                      <input type="text" class="form-control"
+                        :value="formatPrecioFinalModelo(modelo)" readonly />
+                    </div>
+
+                    <div class="form-check mb-3">
+                      <input class="form-check-input" type="checkbox" v-model="modelo.descuento"
+                        :id="'check-descuento-' + index">
+                      <label class="form-check-label" :for="'check-descuento-' + index">
+                        Aplicar descuento a este modelo
+                      </label>
+                    </div>
+
+                    <template v-if="modelo.descuento">
+                      <div class="col-md-6">
+                        <label class="form-label">Tipo de Descuento:</label>
+                        <select v-model="modelo.tipoDescuento" class="form-select">
+                          <option value="">Seleccioná...</option>
+                          <option value="porcentaje">Porcentaje (%)</option>
+                          <option value="monto">Monto Fijo ($)</option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-6" v-if="modelo.tipoDescuento === 'porcentaje'">
+                        <label class="form-label">Porcentaje (%):</label>
+                        <input type="number" class="form-control"
+                          v-model.number="modelo.porcentajeDescuento" min="0" max="100" />
+                      </div>
+
+                      <div class="col-md-6" v-else>
+                        <label class="form-label">Monto ($):</label>
+                        <input type="text" class="form-control"
+                          :value="formatNumber(modelo.montoDescuento)"
+                          @input="formatModeloInput($event, modelo, 'montoDescuento')" />
+                      </div>
+
+                      <div class="col-md-6">
+                        <label class="form-label">Vencimiento:</label>
+                        <input type="datetime-local" class="form-control"
+                          v-model="modelo.fechaYHoraVencimiento" />
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+
+              <div v-else class="text-white-50">Este producto no tiene modelos configurados.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button v-if="producto.descuento" type="button" class="btn btn-outline-danger me-auto"
+            @click="emit('solicitar-confirmacion')">
+            Eliminar descuento
+          </button>
+          <button type="button" class="btn btn-success" @click="guardar">Guardar</button>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
+
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 
 const props = defineProps({
-    producto: Object
+  producto: Object
 })
-const emit = defineEmits(['guardar'])
 
+const emit = defineEmits(['guardar', 'solicitar-confirmacion'])
 const modalRef = ref(null)
 
 const show = () => {
-    if (props.producto.descuento && !props.producto.tipoDescuento) {
-        props.producto.tipoDescuento = 'porcentaje'
+  // Reset del producto base si no tiene descuento
+  if (!props.producto.descuento) {
+    props.producto.tipoDescuento = null
+    props.producto.porcentajeDescuento = 0
+    props.producto.montoDescuento = 0
+    props.producto.fechaYHoraVencimiento = null
+  } else {
+    // Aseguramos que tenga al menos un tipo de descuento definido
+    if (!props.producto.tipoDescuento) {
+      props.producto.tipoDescuento = 'porcentaje'
     }
+  }
 
-    const modal = new bootstrap.Modal(modalRef.value)
-    nextTick(() => modal.show())
+  const modal = new bootstrap.Modal(modalRef.value)
+  nextTick(() => modal.show())
 }
 
 const hide = () => {
-    const modal = bootstrap.Modal.getInstance(modalRef.value)
-    modal?.hide()
+  const modal = bootstrap.Modal.getInstance(modalRef.value)
+  modal?.hide()
 }
 
 defineExpose({ show, hide })
 
-// Watch opcional por si cambiás el checkbox sin abrir modal
 watch(() => props.producto.descuento, (activo) => {
-    if (activo && !props.producto.tipoDescuento) {
-        props.producto.tipoDescuento = 'porcentaje'
-    }
+  if (activo && !props.producto.tipoDescuento) {
+    props.producto.tipoDescuento = 'porcentaje'
+  }
 })
 
+// 💸 Formateo de inputs
 const formatInput = (e, campo) => {
-    const valor = Number(e.target.value.replace(/\D/g, ''))
-    props.producto[campo] = valor
+  const valor = Number(e.target.value.replace(/\D/g, ''))
+  props.producto[campo] = valor
+}
+
+const formatModeloInput = (e, modelo, campo) => {
+  const valor = Number(e.target.value.replace(/\D/g, ''))
+  modelo[campo] = valor
 }
 
 const formatNumber = val => (val || val === 0) ? val.toLocaleString('es-AR') : ''
@@ -106,28 +222,80 @@ const formatNumber = val => (val || val === 0) ? val.toLocaleString('es-AR') : '
 const formattedPrecio = computed(() => formatNumber(props.producto.precio))
 const formattedMonto = computed(() => formatNumber(props.producto.montoDescuento))
 
+// 💰 Precio con descuento del producto base
 const precioFinal = computed(() => {
-    if (!props.producto.descuento || !props.producto.precio) return formattedPrecio.value
-    let precio = props.producto.precio
-    if (props.producto.tipoDescuento === 'porcentaje') {
-        precio -= (precio * (props.producto.porcentajeDescuento || 0)) / 100
-    } else {
-        precio -= props.producto.montoDescuento || 0
-    }
-    return formatNumber(Math.max(0, precio))
+  if (!props.producto.precio) return formattedPrecio.value
+
+  let precio = props.producto.precio
+  if (props.producto.tipoDescuento === 'porcentaje') {
+    precio -= (precio * (props.producto.porcentajeDescuento || 0)) / 100
+  } else {
+    precio -= props.producto.montoDescuento || 0
+  }
+  return formatNumber(Math.max(0, precio))
 })
 
 const minFechaActual = computed(() => {
   const ahora = new Date()
-  ahora.setSeconds(0, 0) // saca los milisegundos
-  return ahora.toISOString().slice(0, 16) // formato YYYY-MM-DDTHH:mm
+  ahora.setSeconds(0, 0)
+  return ahora.toISOString().slice(0, 16)
 })
 
+// 📦 Para cada modelo
+const calcularPrecioFinalModelo = (modelo) => {
+  if (!modelo.precio) return modelo.precio || 0
 
+  let precio = modelo.precio
+  if (modelo.tipoDescuento === 'porcentaje') {
+    precio -= (precio * (modelo.porcentajeDescuento || 0)) / 100
+  } else {
+    precio -= modelo.montoDescuento || 0
+  }
+  return Math.max(0, precio)
+}
+
+const formatPrecioFinalModelo = (modelo) => {
+  return formatNumber(calcularPrecioFinalModelo(modelo))
+}
+
+// 🧹 Eliminar descuento base
+const confirmarEliminacion = () => {
+  const confirmacion = window.confirm('¿Estás seguro de que querés eliminar el descuento de este producto?')
+  if (confirmacion) {
+    props.producto.descuento = false
+    props.producto.tipoDescuento = null
+    props.producto.porcentajeDescuento = 0
+    props.producto.montoDescuento = 0
+    props.producto.fechaYHoraVencimiento = null
+    guardar()
+  }
+}
+
+// 💾 Guardar
 const guardar = () => {
-    emit('guardar')
+  // Limpieza de modelos sin descuento
+  if (props.producto.modelos && Array.isArray(props.producto.modelos)) {
+    props.producto.modelos.forEach(modelo => {
+      if (!modelo.descuento) {
+        modelo.tipoDescuento = null
+        modelo.porcentajeDescuento = 0
+        modelo.montoDescuento = 0
+        modelo.fechaYHoraVencimiento = null
+      } else {
+        // Asegurar campos válidos por defecto
+        if (!modelo.tipoDescuento) {
+          modelo.tipoDescuento = 'porcentaje'
+        }
+      }
+    })
+  }
+
+  emit('guardar')
 }
 </script>
+
+
+
 
 
 <style scoped>

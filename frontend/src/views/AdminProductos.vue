@@ -1,5 +1,4 @@
 <template>
-
   <SpinnerCarga ref="spinnerRef" mensaje="Cargando productos de la tienda..." />
 
   <div class="admin-productos">
@@ -7,6 +6,40 @@
       <i class="fas fa-box-open icono-blanco me-2"></i>
       <span class="texto-dorado">Administrar Productos</span>
     </h1>
+
+    <div class="filtros-admin d-flex flex-wrap align-items-center gap-3 mb-4">
+
+      <!-- 🔍 Input de búsqueda -->
+      <div class="flex-grow-1">
+        <div class="input-group">
+          <span class="input-group-text bg-dark border-dark text-white">
+            <i class="fas fa-search"></i>
+          </span>
+          <input v-model="busqueda" type="text" class="form-control bg-dark text-white border-dark"
+            placeholder="Buscar producto por nombre..." />
+        </div>
+      </div>
+
+      <!-- 📦 Filtro de categoría -->
+      <div>
+        <select v-model="filtroCategoria" class="form-select bg-dark text-white border-dark">
+          <option value="">Todas las categorías</option>
+          <option v-for="cat in categoriasDisponibles" :key="cat" :value="cat">
+            {{ cat }}
+          </option>
+        </select>
+      </div>
+
+      <!-- 🛠️ Checkbox de incompletos -->
+      <div class="form-check d-flex align-items-center text-white">
+        <input class="form-check-input me-2" type="checkbox" v-model="mostrarIncompletos" id="checkIncompletos" />
+        <label class="form-check-label" for="checkIncompletos">
+          <i class="fas fa-tools me-1"></i> Solo incompletos
+        </label>
+      </div>
+
+    </div>
+
 
     <div class="tabla-wrapper">
       <table class="tabla-productos">
@@ -20,11 +53,21 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="producto in productos" :key="producto.id">
+          <tr v-for="producto in productosFiltrados" :key="producto.id">
             <td data-label="Imagen">
-              <img :src="producto.imagenCarrusel?.[0] || producto.imagen || '/img/no-image.png'" @error="onImgError"
-                alt="imagen" class="img-mini" />
+              <div class="pos-relative">
+                <div class="contenedor-img-mini">
+                  <img :src="producto.imagen || '/img/no-image.png'" @error="onImgError" alt="imagen" />
+                </div>
+
+
+                <span v-if="!producto.imagen && (!producto.imagenCarrusel || producto.imagenCarrusel.length === 0)"
+                  class="icono-alerta" title="Este producto no tiene imágenes cargadas">
+                  <i class="fas fa-exclamation-triangle text-warning"></i>
+                </span>
+              </div>
             </td>
+
             <td data-label="Nombre">{{ producto.nombre }}</td>
             <td data-label="Precio">{{ formatPrice(obtenerPrecioFinal(producto)) }}</td>
             <td data-label="Stock">{{ producto.stockDisponible }}</td>
@@ -40,7 +83,6 @@
               </button>
             </td>
           </tr>
-
         </tbody>
       </table>
     </div>
@@ -54,18 +96,16 @@
 
   <ModalEditarProducto ref="modalEditarProductoRef" :producto="productoSeleccionado" @guardar="guardarEdicion" />
 
-
   <Notificacion ref="notificacionRef" />
 
   <router-link to="/add-product" class="btn-flotante-agregar" title="Agregar producto">
     <i class="fas fa-plus"></i>
   </router-link>
-
-
 </template>
 
+
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import axios from 'axios'
 
 import ModalConfirmacion from '../components/Modals/ModalConfirmacion.vue'
@@ -86,11 +126,32 @@ const modalEditarProductoRef = ref(null)
 const productoSeleccionado = ref(null)
 const cargando = ref(true)
 const spinnerRef = ref(null)
-const productoParaVistaPrevia = ref(null) // 👁 Producto seleccionado para vista previa
+const productoParaVistaPrevia = ref(null)
 const modalVistaPreviaRef = ref(null)
+const busqueda = ref('')
+const filtroCategoria = ref('')
+const mostrarIncompletos = ref(false)
 
 const props = defineProps({
   producto: Object
+})
+
+const categoriasDisponibles = computed(() => {
+  const set = new Set()
+  productos.value.forEach(p => {
+    if (p.categoria) set.add(p.categoria)
+  })
+  return Array.from(set).sort()
+})
+
+
+const productosFiltrados = computed(() => {
+  return productos.value.filter(p => {
+    const coincideBusqueda = p.nombre?.toLowerCase().includes(busqueda.value.toLowerCase())
+    const coincideCategoria = !filtroCategoria.value || p.categoria === filtroCategoria.value
+    const pasaFiltroIncompleto = !mostrarIncompletos.value || p.completado === false
+    return coincideBusqueda && coincideCategoria && pasaFiltroIncompleto
+  })
 })
 
 
@@ -189,8 +250,9 @@ async function confirmarEdicion() {
 
 // 🖼️ Imagen fallback
 function onImgError(event) {
-  event.target.src = '/img/no-image.png'
+  event.target.src = '/Img/imagenNoDisponible.jpg'
 }
+
 
 // 💸 Formato precio AR
 function formatPrice(value) {
@@ -285,6 +347,22 @@ async function guardarEdicion(productoEditado) {
 /* ====================
    📊 TABLA DE PRODUCTOS
 ==================== */
+.filtros-admin {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.input-group .form-control::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
+select.form-select option {
+  background-color: #111;
+}
+
+
+
 .tabla-wrapper {
   overflow-x: auto;
   border-radius: 1rem;
@@ -324,13 +402,31 @@ tr:hover td {
   background-color: #222;
 }
 
-.img-mini {
-  width: 64px;
-  height: 64px;
-  object-fit: cover;
+.contenedor-img-mini {
+  width: 80px;
+  height: 80px;
+  background-color: #fff;
+  /* fondo blanco bien visible */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #333;
   border-radius: 0.75rem;
-  border: 2px solid #444;
+  overflow: hidden;
 }
+
+.contenedor-img-mini img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
+
+.tabla-productos td {
+  height: 100px;
+  /* Forzamos altura pareja */
+  vertical-align: middle;
+}
+
 
 /* ====================
    🎯 BOTONES DE ACCIÓN
@@ -339,8 +435,8 @@ tr:hover td {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  min-height: 100px;
+  height: 100% !important;
+  min-height: 115px;
   gap: 0.5rem;
 }
 
@@ -406,6 +502,24 @@ tr:hover td {
   background-color: #e6b000;
   color: #000;
 }
+
+.pos-relative {
+  position: relative;
+  display: inline-block;
+}
+
+.icono-alerta {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #111;
+  padding: 5px;
+  border-radius: 90%;
+  box-shadow: 0 0 5px rgba(255, 193, 7, 0.6);
+  font-size: 0.9rem;
+  z-index: 2;
+}
+
 
 
 @media (max-width: 768px) {
